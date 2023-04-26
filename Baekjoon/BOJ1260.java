@@ -8,25 +8,25 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 public class BOJ1260 {
-    public static boolean[] visited;
-    public static ArrayList<ArrayList<Integer>> graph;
-    public static ArrayList<Integer> dfs_result = new ArrayList<>();
-    public static ArrayList<Integer> bfs_result = new ArrayList<>();
+    static boolean[] visited;
+    static ArrayList<ArrayList<Integer>> graph;
+
+    static StringBuilder sb = new StringBuilder();
 
     public static void main(String[] args) throws Exception {
-        //입출력 처리
+        // 입출력 처리
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 
-        //입력
-        int n, m, v; //n: 정점 갯수, m: 간선 갯수, v: 시작 번호
+        // 입력
+        int n, m, v; // n: 정점 갯수, m: 간선 갯수, v: 시작 번호
 
         String[] nmv = br.readLine().split(" ");
         n = Integer.parseInt(nmv[0]);
         m = Integer.parseInt(nmv[1]);
         v = Integer.parseInt(nmv[2]);
 
-        //인접 리스트
+        // 인접 리스트
         graph = new ArrayList<>();
 
         for (int i = 0; i <= n; i++) {
@@ -42,47 +42,38 @@ public class BOJ1260 {
             graph.get(n2).add(n1);
         }
 
-        //인접 리스트 정렬
+        // 인접 리스트 정렬
         for (ArrayList<Integer> g : graph) {
             Collections.sort(g);
         }
 
-        //1번 인접리스트부터 n번 인접리스트까지 출력
-        /* 
-        for (int i = 1; i <= n; i++) {
-            bw.write(graph.get(i).toString());
-        }
-        */
+        // 1번 인접리스트부터 n번 인접리스트까지 출력
+        /*
+         * for (int i = 1; i <= n; i++) {
+         * bw.write(graph.get(i).toString());
+         * }
+         */
 
-        //dfs
-        visited = new boolean[n];
+        visited = new boolean[n + 1];
         dfs(v);
-        for (Integer integer : dfs_result) {
-            bw.write(integer.toString() + " ");
-        }
-        bw.write("\n");
-        
-        //bfs
-        visited = new boolean[n];
-        bfs(v);
-        for (Integer integer : bfs_result) {
-            bw.write(integer.toString() + " ");
-        }
+        sb.append("\n");
 
-        
+        visited = new boolean[n + 1];
+        bfs(v);
+
+        bw.write(sb.toString());
         bw.flush();
         bw.close();
     }
 
-    public static void dfs(int v)
-    {
+    public static void dfs(int v) {
         // 방문한 정점 표시
-        visited[v - 1] = true;
-        dfs_result.add(v);
+        visited[v] = true;
+        sb.append(v + " ");
 
-        //인접 정점 탐색
+        // 인접 정점 탐색
         for (Integer w : graph.get(v)) {
-            if (!visited[w - 1]) {
+            if (!visited[w]) {
                 dfs(w);
             }
         }
@@ -90,27 +81,26 @@ public class BOJ1260 {
         return;
     }
 
-    public static void bfs(int v)
-    {
+    public static void bfs(int v) {
         Queue<Integer> queue = new LinkedList<>();
         // 방문한 정점 표시
-        visited[v - 1] = true;
-        bfs_result.add(v);
+        visited[v] = true;
+        sb.append(v + " ");
 
-        queue.offer(v); //시작 정점을 큐에 저장
+        queue.offer(v); // 시작 정점을 큐에 저장
         while (!queue.isEmpty()) {
             v = queue.poll();
+            // sb.append(v + " ");
             // 인접 정점 탐색
             for (Integer w : graph.get(v)) {
-                if (!visited[w - 1]) {
-                    visited[w - 1] = true;
+                if (!visited[w]) {
                     // 방문한 정점 표시
-                    visited[w - 1] = true;
-                    bfs_result.add(w);
+                    visited[w] = true;
+                    sb.append(w + " ");
                     queue.offer(w); // 정점을 큐에 저장
                 }
             }
         }
-        
+
     }
 }
