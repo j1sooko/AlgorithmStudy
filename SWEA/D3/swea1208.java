@@ -15,7 +15,6 @@ public class swea1208 {
 			int N = Integer.parseInt(br.readLine()); //덤프 횟수
 			String[] input = br.readLine().split(" ");
 			int[] box = new int[100];
-			int d = 0;
 			
 			for (int i = 0; i < 100; i++) 
 				box[i] = Integer.parseInt(input[i]);
@@ -25,9 +24,8 @@ public class swea1208 {
 				box[99]--;
 				box[0]++;
 				Arrays.sort(box);
-				d = box[99] - box[0];
 			}
-			sb.append("#" + test_case + " " + d + "\n");
+			sb.append("#" + test_case + " " + (box[99] - box[0]) + "\n");
 		}
 		bw.write(sb.toString());
 		br.close();
