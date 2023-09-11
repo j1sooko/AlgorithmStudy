@@ -9,28 +9,27 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.PriorityQueue;
 
-class Person implements Comparable<Person> {
+class User implements Comparable<User> {
 	int p, q; //p: 시작시간, q: 종료시간
 	
-	public Person(int p, int q) {
+	public User(int p, int q) {
 		this.p = p;
 		this.q = q;
 	}
 
 	@Override
-	public int compareTo(Person person) {
-		if (this.p < person.p) return -1;
-		else if (this.p > person.p) return 1;
+	public int compareTo(User user) {
+		if (this.p < user.p) return -1;
+		else if (this.p > user.p) return 1;
 		return 0;
 	}
 }
 
 class Computer implements Comparable<Computer> {
-	int q, cnt, idx; // q: 종료시간, cnt: 사용한 사람 수, idx: 컴퓨터 번호
+	int q, cnt, idx; // q: 종료시간, idx: 컴퓨터 번호
 	
-	public Computer(int q, int cnt, int idx) {
+	public Computer(int q, int idx) {
 		this.q = q;
-		this.cnt = cnt;
 		this.idx = idx;
 	}
 	
@@ -48,47 +47,46 @@ public class Main {
 		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 		StringBuilder sb = new StringBuilder();
 		
-		PriorityQueue<Person> personQueue = new PriorityQueue<>(); // 사람 우선순위 큐: 시작 시간이 빠른 순서대로
-		PriorityQueue<Computer> computerQueue = new PriorityQueue<>(); // 컴퓨터 우선순위 큐: 끝나는 시간이 빠른 순서대로
+		PriorityQueue<User> UserQueue = new PriorityQueue<>(); // 사람 우선순위 큐: 시작 시간이 빠른 순서대로
+		PriorityQueue<Computer> computerQueue = new PriorityQueue<>(); // 사용중인 컴퓨터 우선순위 큐: 끝나는 시간이 빠른 순서대로
+		PriorityQueue<Integer> nextComQueue = new PriorityQueue<>(); // 사용 가능한 컴퓨터 우선순위 큐: 컴퓨터 번호가 작은 순서대로 번호를 담음
 		
 		int N = Integer.parseInt(br.readLine());
 		
 		for (int i = 0; i < N; i++) {
 			String[] input = br.readLine().split(" ");
-			personQueue.add(new Person(Integer.parseInt(input[0]), Integer.parseInt(input[1])));
+			UserQueue.add(new User(Integer.parseInt(input[0]), Integer.parseInt(input[1])));
 		}
 		
+		int[] comCnt = new int[100001];
 		int originalIndex = 0;
 ;		for (int i = 0; i < N; i++) {
-			Person person = personQueue.poll();
-			// 사용할 수 있는 컴퓨터가 하나도 없는 경우
-			if (computerQueue.isEmpty() || (computerQueue.peek().q > person.p)) {
-				computerQueue.add(new Computer(person.q, 1, originalIndex++));
-						
-			} else { // 다른 사람의 사용이 끝나 빈 자리가 있는 경우
-				Computer computer = computerQueue.poll();
-				int count = computer.cnt + 1;
-				int index = computer.idx;
+			// 사용 시간이 빠른 사용자부터	
+			User user = UserQueue.poll();
 			
-				computerQueue.add(new Computer(person.q, count, index));
+			// nextComQueue.add()
+			// 사용중인 컴퓨터들 중 (사용자의 시작시간 > 컴퓨터 사용 종료시간)인 컴퓨터를 사용가능 대기열에 모두 추가
+			while (!computerQueue.isEmpty() && user.p > computerQueue.peek().q) {
+				nextComQueue.add(computerQueue.poll().idx);
+			}
+		
+			// computerQueue.add()
+			if (nextComQueue.isEmpty()) { // 사용가능한 컴퓨터가 없음
+				computerQueue.add(new Computer(user.q,  originalIndex)); // 컴퓨터 추가
+				comCnt[originalIndex]++;
+				originalIndex++;
+			}
+			else { //사용가능한 컴퓨터 중 번호가 작은 것 먼저 사용, 컴퓨터 사용열에 추가
+				computerQueue.add(new Computer(user.q, nextComQueue.peek()));
+				comCnt[nextComQueue.poll()]++;
 			}
 		}
-
-		// 컴퓨터의 인덱스 기준으로 정렬
-		int len = computerQueue.size();
-		HashMap<Integer, Integer> rstMap = new HashMap<Integer, Integer>();
-		for (int i = 0; i < len; i++) {
-			Computer c = computerQueue.poll();
-			rstMap.put(c.idx, c.cnt);
+		
+		sb.append(originalIndex + "\n");
+		for (int i = 0; i < originalIndex; i++) {
+			sb.append(comCnt[i] + " ");
 		}
 		
-		List<Integer> keyList = new ArrayList<>(rstMap.keySet());
-		keyList.sort((s1, s2) -> s1.compareTo(s2));
-		for (int key: keyList) {
-			sb.append(rstMap.get(key) + " ");
-		}
-		
-		// 번호가 작은 경우 고려해야함
 		
 		bw.write(sb.toString());
 		br.close();
